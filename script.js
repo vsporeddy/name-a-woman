@@ -30,7 +30,7 @@ function showResultsPopup() {
 }
 
 function copyResults() {
-    const resultsText = `I named ${correctNames.size} women in a minute!\r\n||${Array.from(correctNames).join("\r\n")}||`;
+    const resultsText = `I named ${correctNames.size} women in a minute!\r\n||${Array.from(correctNames).join("\r\n")}||\r\n\r\nHow many can you name?\r\nhttps://vsporeddy.github.io/name-a-woman/`;
 
     navigator.clipboard.writeText(resultsText)
       .then(() => alert("Results copied!"))
