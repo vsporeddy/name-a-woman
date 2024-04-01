@@ -23,6 +23,7 @@ const incorrectNames = new Set();
 const submittedWikidataIds = new Set();
 
 const womanGenderIds = new Set(['Q6581072', 'Q1052281', 'Q4676163']);
+const transManId = 'Q2449503';
 
 submitButton.addEventListener('click', verifyWomanWithWikidata);
 
@@ -180,6 +181,12 @@ function checkWikidata(title) {
               let id = claim.mainsnak.datavalue.value.id;
               if (womanGenderIds.has(id)) {
                 isWoman = true;
+              }
+            });
+            claims.P21.forEach(claim => {
+              let id = claim.mainsnak.datavalue.value.id;
+              if (id === transManId) {
+                isWoman = false;
               }
             });
           }
