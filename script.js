@@ -7,11 +7,11 @@ const errorMessage =
     'Bro that\'s not a woman or she doesn\'t have a Wikipedia page.';
 const genderErrorMessage = 'Bro that\'s not a woman!';
 const correctMessage = 'You named a woman!';
-const alreadySubmittedMessage = 'Bruh you already said ';
 const fictionalMessage = 'Bruh that\'s a fictional character!';
 const repeatMessage = 'Bruh you already said ';
+const correctRepeatMessage = 'Bro you already got a point for ';
 
-const timeReward = 10;
+const timeReward = 5;
 const gameDuration = 60;  // Time in seconds
 let timeRemaining = gameDuration;
 let timerInterval;  // To store the interval reference
@@ -20,6 +20,7 @@ let score = 0;
 const submittedNames = new Set();
 const correctNames = new Set();
 const incorrectNames = new Set();
+const submittedWikidataIds = new Set();
 
 submitButton.addEventListener('click', verifyWomanWithWikidata);
 
@@ -89,21 +90,41 @@ function verifyWomanWithWikidata() {
              originalResult.isWoman) ||
             (reversedResult && reversedResult.isHuman &&
              reversedResult.isWoman)) {
-          score++;
-          scoreDisplay.textContent = score;
-          resultDiv.textContent = correctMessage;
-          correctNames.add(formatName(name));
-          timeRemaining += timeReward;
-        } else if (originalResult && !originalResult.isWoman && originalResult.isHuman) {
+          if ((originalResult && originalResult.isDuplicate) ||
+              (reversedResult && reversedResult.isDuplicate)) {
+            resultDiv.textContent = correctRepeatMessage + formatName(name);
+          } else {
+            score++;
+            scoreDisplay.textContent = score;
+            resultDiv.textContent = correctMessage;
+            correctNames.add(formatName(name));
+            if (timeRemaining < 60) {
+              timeRemaining += timeReward;
+            }
+          }
+          if (originalResult.entityId) {
+            submittedWikidataIds.add(originalResult.entityId);
+          } else if (reversedResult.entityId) {
+            submittedWikidataIds.add(reversedResult.entityId);
+          }
+        } else if (
+            originalResult && !originalResult.isWoman &&
+            originalResult.isHuman) {
           resultDiv.textContent = genderErrorMessage;
           incorrectNames.add(formatName(name));
-        } else if (originalResult && !originalResult.isHuman && originalResult.isWoman) {
+        } else if (
+            originalResult && !originalResult.isHuman &&
+            originalResult.isWoman) {
           resultDiv.textContent = fictionalMessage;
           incorrectNames.add(formatName(name));
-        } else if (reversedResult && !reversedResult.isWoman && reversedResult.isHuman) {
+        } else if (
+            reversedResult && !reversedResult.isWoman &&
+            reversedResult.isHuman) {
           resultDiv.textContent = genderErrorMessage;
           incorrectNames.add(formatName(name));
-        } else if (reversedResult && !reversedResult.isHuman && reversedResult.isWoman) {
+        } else if (
+            reversedResult && !reversedResult.isHuman &&
+            reversedResult.isWoman) {
           resultDiv.textContent = fictionalMessage;
           incorrectNames.add(formatName(name));
         } else {
@@ -140,10 +161,16 @@ function checkWikidata(title) {
         let found = false;
         let isHuman = false;
         let isWoman = false;
+        let isDuplicate = false;
+        let entityId = null;
 
         if (!!entities) {
-          const entityId = Object.keys(entities)[0];
+          entityId = Object.keys(entities)[0];
           const claims = entities[entityId].claims;
+
+          if (submittedWikidataIds.has(entityId)) {
+            isDuplicate = true;
+          }
 
           found = true;
           if (claims.P21 &&
@@ -159,10 +186,22 @@ function checkWikidata(title) {
           }
         }
 
-        return {found: found, isHuman: isHuman, isWoman: isWoman};
+        return {
+          found: found,
+          isHuman: isHuman,
+          isWoman: isWoman,
+          isDuplicate: isDuplicate,
+          entityId: entityId
+        };
       })
       .catch(error => {
-        return {found: false, isHuman: false, isWoman: false};
+        return {
+          found: false,
+          isHuman: false,
+          isWoman: false,
+          isDuplicate: false,
+          entityId: null
+        };
       });
 }
 
