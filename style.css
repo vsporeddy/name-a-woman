@@ -1,39 +1,30 @@
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin: 20px;
-    background-color: #ffe0e0; /* Light pink background */
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name a Woman</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Name a Woman</h1>
 
-input[type="text"], button {
-    padding: 8px;
-    margin: 10px;
-    border-radius: 5px; /* Add a slight curve to input and button */
-}
+    <input type="text" id="nameInput" placeholder="Any...?">
+    <button id="submitButton">Submit</button>
 
-#result {
-    margin-top: 20px;
-    font-size: 18px;
-}
+    <div id="result"></div>
+    <p>Women Named: <span id="score">0</span></p>
 
-#womenNamed, #invalidGuesses {
-  white-space: pre-wrap;
-  margin-bottom: 10px; /* Add spacing between names */
-}
+    <p>Time Remaining: <span id="timer">01:00</span></p> 
 
-/* Style for the results popup */
-#resultsPopup {
-    display: none;
-    position: fixed;  /* Position it in the center  */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Center alignment */
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow effect */
-} 
+    <div id="resultsPopup" style="display: none;"> 
+        <h2>gg</h2>
+        <p>Bro you only named <span id="finalScore"></span> women?</p>
+        <p><b>Women named</b>: <span id="womenNamed"</span></p>
+        <p><b>Invalid guesses</b>: <span id="invalidGuesses"</span></p>
+        <button onclick="copyResults()">Copy Results</button>
+    </div>
 
-#timer, #score {
-  font-weight: bold;
-}
+    <script src="script.js"></script>
+</body>
+</html>
