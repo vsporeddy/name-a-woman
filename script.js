@@ -30,7 +30,7 @@ function showResultsPopup() {
 }
 
 function copyResults() {
-    const resultsText = `I named ${correctNames.size} women in 5 minutes!\r\n${Array.from(correctNames).join("\r\n")}`;
+    const resultsText = `I named ${correctNames.size} women in a minute!\r\n${Array.from(correctNames).join("\r\n")}`;
 
     navigator.clipboard.writeText(resultsText)
       .then(() => alert("Results copied!"))
@@ -97,7 +97,7 @@ function reverse(name) {
     return reversedName;
 }
 
-const gameDuration = 300; // Time in seconds
+const gameDuration = 60; // Time in seconds
 let timeRemaining = gameDuration; 
 let timerInterval; // To store the interval reference
 
