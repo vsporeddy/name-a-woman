@@ -74,7 +74,7 @@ function verifyWomanWithWikidata() {
   if (submittedNames.has(name) || submittedNames.has(reversedName)) {
     submittedNames.add(reversedName);
     submittedNames.add(name);
-    resultDiv.textContent = repeatMessage + formatName(name);
+    resultDiv.textContent = repeatMessage + formatName(name) + "!";
     return;
   }
 
@@ -98,7 +98,7 @@ function verifyWomanWithWikidata() {
              reversedResult.isFemale)) {
           if ((originalResult && originalResult.isDuplicate) ||
               (reversedResult && reversedResult.isDuplicate)) {
-            resultDiv.textContent = correctRepeatMessage + formatName(name);
+            resultDiv.textContent = correctRepeatMessage + formatName(name) + "!";
           } else {
             score++;
             scoreDisplay.textContent = score;
