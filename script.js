@@ -3,14 +3,16 @@ const submitButton = document.getElementById("submitButton");
 const resultDiv = document.getElementById("result");
 const scoreDisplay = document.getElementById("score");
 
-const errorMessage = "Bro that's not a woman or she doesn't have a Wikipedia page. Spelling matters!";
+const errorMessage = "Bro that's not a woman or she doesn't have a Wikipedia page.";
 const genderErrorMessage = "Bro that's not a woman!"
 const correctMessage = "You named a woman!"
 const alreadySubmittedMessage = "Bruh you already said "
 
 let score = 0;
 
-const submittedNames = new Set(); // Create a Set
+const submittedNames = new Set(); 
+const correctNames = new Set();
+const incorrectNames = new Set();
 
 submitButton.addEventListener('click', verifyWomanWithWikidata);
 
@@ -20,6 +22,20 @@ nameInput.addEventListener('keypress', function(event) {
         verifyWomanWithWikidata();
     }
 });
+
+function showResultsPopup() {
+    document.getElementById("finalScore").textContent = correctNames.size;
+    // document.getElementById("nameList").textContent = Array.from(correctNames).join("\r\n"); 
+    document.getElementById("resultsPopup").style.display = "block"; 
+}
+
+function copyResults() {
+    const resultsText = `I named ${correctNames.size} women in 5 minutes!\r\n${Array.from(correctNames).join("\r\n")}`;
+
+    navigator.clipboard.writeText(resultsText)
+      .then(() => alert("Results copied!"))
+      .catch(() => alert("Could not copy results"));
+}
 
 function formatWikiPageTitle(name) {
   const parts = name.split(" ");
@@ -63,12 +79,15 @@ function verifyWomanWithWikidata() {
                 score++;
                 scoreDisplay.textContent = score;
                 resultDiv.textContent = correctMessage;
+                correctNames.add(formatName(name));
             } else {
                 resultDiv.textContent = genderErrorMessage;
+                incorrectNames.add(formatName(name));
             }
         })
         .catch(error => {
             resultDiv.textContent = errorMessage;
+            incorrectNames.add(formatName(name));
             console.error(error); 
         });
 }
@@ -77,3 +96,34 @@ function reverse(name) {
     const reversedName = name.split(" ").reverse().join(" ");
     return reversedName;
 }
+
+const gameDuration = 300; // Time in seconds
+let timeRemaining = gameDuration; 
+let timerInterval; // To store the interval reference
+
+function startTimer() {
+    const timerDisplay = document.getElementById("timer"); 
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`; 
+
+        if (timeRemaining === 0) {
+            endGame();
+        }
+    }, 1000); 
+}
+
+function endGame() {
+    clearInterval(timerInterval);
+    disableInputAndButton(); // Prevent further submissions
+    showResultsPopup();
+}
+
+function disableInputAndButton() {
+    nameInput.disabled = true;
+    submitButton.disabled = true; 
+}
+
+startTimer();
