@@ -3,8 +3,7 @@ const submitButton = document.getElementById('submitButton');
 const resultDiv = document.getElementById('result');
 const scoreDisplay = document.getElementById('score');
 
-const errorMessage =
-    'Bro that\'s not a woman or she doesn\'t have a Wikipedia page.';
+const errorMessage = 'We couldn\'t find that woman.';
 const genderErrorMessage = 'Bro that\'s not a woman!';
 const correctMessage = 'You named a woman!';
 const fictionalMessage = 'Bruh that\'s a fictional character!';
@@ -22,7 +21,7 @@ const correctNames = new Set();
 const incorrectNames = new Set();
 const submittedWikidataIds = new Set();
 
-const womanGenderIds = new Set(['Q6581072', 'Q1052281', 'Q4676163']);
+const womanGenderIds = new Set(['Q6581072', 'Q1052281', 'Q4676163', 'Q575']);
 const transManId = 'Q2449503';
 
 submitButton.addEventListener('click', verifyWomanWithWikidata);
@@ -36,8 +35,10 @@ nameInput.addEventListener('keypress', function(event) {
 
 function showResultsPopup() {
   document.getElementById('finalScore').textContent = correctNames.size;
-  // document.getElementById("nameList").textContent =
-  // Array.from(correctNames).join("\r\n");
+  document.getElementById('womenNamed').textContent =
+      '\r\n' + Array.from(correctNames).join('\r\n');
+  document.getElementById('invalidGuesses').textContent =
+      '\r\n' + Array.from(incorrectNames).join('\r\n');
   document.getElementById('resultsPopup').style.display = 'block';
 }
 
