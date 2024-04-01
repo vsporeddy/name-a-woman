@@ -3,12 +3,12 @@ const submitButton = document.getElementById('submitButton');
 const resultDiv = document.getElementById('result');
 const scoreDisplay = document.getElementById('score');
 
-const errorMessage = 'We couldn\'t find that woman.';
-const genderErrorMessage = 'Bro that\'s not a woman!';
+const errorMessage = 'We couldn\'t find that person on Wikipedia. We\'re not strict on spelling, but try your best!';
+const genderErrorMessage = 'Based on publicly available information on Wikipedia, it seems this person\'s gender identity may not be categorized as "woman".\r\nWikipedia isn\'t perfect, and gender identity is complex. If you think this is incorrect, please submit feedback!';
 const correctMessage = 'You named a woman!';
-const fictionalMessage = 'Bruh that\'s a fictional character!';
-const repeatMessage = 'Bruh you already said ';
-const correctRepeatMessage = 'Bro you already got a point for ';
+const fictionalMessage = 'That\'s a fictional character! Try to name real human women!';
+const repeatMessage = 'You already said ';
+const correctRepeatMessage = 'You already got a point for ';
 
 const timeReward = 5;
 const gameDuration = 60;  // Time in seconds
@@ -21,7 +21,8 @@ const correctNames = new Set();
 const incorrectNames = new Set();
 const submittedWikidataIds = new Set();
 
-const womanGenderIds = new Set(['Q6581072', 'Q1052281', 'Q4676163', 'Q575']);
+const womanGenderIds =
+    new Set(['Q6581072', 'Q1052281', 'Q4676163', 'Q575', 'Q43445', 'Q10675']);
 const transManId = 'Q2449503';
 
 submitButton.addEventListener('click', verifyWomanWithWikidata);
@@ -67,7 +68,8 @@ function verifyWomanWithWikidata() {
   const name = nameInput.value.toLowerCase();  // Convert to lowercase
   const reversedName = reverse(name);
   nameInput.value = '';  // Clear input field
-  resultDiv.innerHTML = '<span id="checkingText" class="loading">Searching...</span>'; 
+  resultDiv.innerHTML =
+      '<span id="checkingText" class="loading">Searching...</span>';
 
   if (submittedNames.has(name) || submittedNames.has(reversedName)) {
     submittedNames.add(reversedName);
@@ -91,16 +93,16 @@ function verifyWomanWithWikidata() {
   Promise.all([originalPromise, reversedPromise])
       .then(([originalResult, reversedResult]) => {
         if ((originalResult && originalResult.isHuman &&
-             originalResult.isWoman) ||
+             originalResult.isFemale) ||
             (reversedResult && reversedResult.isHuman &&
-             reversedResult.isWoman)) {
+             reversedResult.isFemale)) {
           if ((originalResult && originalResult.isDuplicate) ||
               (reversedResult && reversedResult.isDuplicate)) {
             resultDiv.textContent = correctRepeatMessage + formatName(name);
           } else {
             score++;
             scoreDisplay.textContent = score;
-            resultDiv.textContent = correctMessage;
+            resultDiv.innerHTML = `<span class="correct-result">${correctMessage}</span>`;
             correctNames.add(formatName(name));
             if (timeRemaining < 60) {
               timeRemaining += timeReward;
@@ -112,27 +114,27 @@ function verifyWomanWithWikidata() {
             submittedWikidataIds.add(reversedResult.entityId);
           }
         } else if (
-            originalResult && !originalResult.isWoman &&
+            originalResult && !originalResult.isFemale &&
             originalResult.isHuman) {
-          resultDiv.textContent = genderErrorMessage;
+          resultDiv.innerHTML = `<span class="incorrect-result">${genderErrorMessage}</span>`;
           incorrectNames.add(formatName(name));
         } else if (
             originalResult && !originalResult.isHuman &&
-            originalResult.isWoman) {
-          resultDiv.textContent = fictionalMessage;
+            originalResult.isFemale) {
+          resultDiv.innerHTML = `<span class="incorrect-result">${fictionalMessage}</span>`;
           incorrectNames.add(formatName(name));
         } else if (
-            reversedResult && !reversedResult.isWoman &&
+            reversedResult && !reversedResult.isFemale &&
             reversedResult.isHuman) {
-          resultDiv.textContent = genderErrorMessage;
+          resultDiv.innerHTML = `<span class="incorrect-result">${genderErrorMessage}</span>`;
           incorrectNames.add(formatName(name));
         } else if (
             reversedResult && !reversedResult.isHuman &&
-            reversedResult.isWoman) {
-          resultDiv.textContent = fictionalMessage;
+            reversedResult.isFemale) {
+          resultDiv.innerHTML = `<span class="incorrect-result">${fictionalMessage}</span>`;
           incorrectNames.add(formatName(name));
         } else {
-          resultDiv.textContent = errorMessage;
+          resultDiv.innerHTML = errorMessage;
           incorrectNames.add(formatName(name));
         }
       })
@@ -141,7 +143,8 @@ function verifyWomanWithWikidata() {
         incorrectNames.add(formatName(name));
         console.error(error);
       });
-  document.getElementById('checkingText').classList.remove('loading'); // Remove animation 
+  document.getElementById('checkingText')
+      .classList.remove('loading');  // Remove animation
   submittedNames.add(reversedName);
   submittedNames.add(name);
 }
@@ -164,7 +167,7 @@ function checkWikidata(title) {
 
         let found = false;
         let isHuman = false;
-        let isWoman = false;
+        let isFemale = false;
         let isDuplicate = false;
         let entityId = null;
 
@@ -177,23 +180,28 @@ function checkWikidata(title) {
           }
 
           found = true;
-          if (claims.P21) {
-            claims.P21.forEach(claim => {
+          if (claims.P21) {  // Ensure the 'P21' (gender) property exists
+            // Check if any gender IDs match recognized female-identifying IDs
+            isFemale = claims.P21.some(claim => {
               let id = claim.mainsnak.datavalue.value.id;
-              if (womanGenderIds.has(id)) {
-                isWoman = true;
-              }
+              return womanGenderIds.has(id);
             });
-            claims.P21.forEach(claim => {
+
+            // Ensure none of the gender IDs match the 'trans man' ID.
+            // Sometimes entries for trans man are still associated with
+            // female-identifying IDs.
+            isFemale = isFemale && !claims.P21.some(claim => {
               let id = claim.mainsnak.datavalue.value.id;
-              if (id === transManId) {
-                isWoman = false;
-              }
+              return id === transManId;
             });
           }
-          if (claims.P31) {
+
+          if (claims.P31) {  // Ensure the 'P31' (instance of) property exists
+            // Extract IDs of all 'instance of' claims
             const instanceOfValues =
                 claims.P31.map(claim => claim.mainsnak.datavalue.value.id);
+
+            // Check if any 'instance of' IDs include 'Q5' (human)
             if (instanceOfValues.includes('Q5')) {
               isHuman = true;
             }
@@ -203,7 +211,7 @@ function checkWikidata(title) {
         return {
           found: found,
           isHuman: isHuman,
-          isWoman: isWoman,
+          isFemale: isFemale,
           isDuplicate: isDuplicate,
           entityId: entityId
         };
@@ -212,7 +220,7 @@ function checkWikidata(title) {
         return {
           found: false,
           isHuman: false,
-          isWoman: false,
+          isFemale: false,
           isDuplicate: false,
           entityId: null
         };
