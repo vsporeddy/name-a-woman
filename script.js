@@ -67,7 +67,7 @@ function verifyWomanWithWikidata() {
   const name = nameInput.value.toLowerCase();  // Convert to lowercase
   const reversedName = reverse(name);
   nameInput.value = '';  // Clear input field
-  resultDiv.textContent = 'Checking...';
+  resultDiv.innerHTML = '<span id="checkingText" class="loading">Searching...</span>'; 
 
   if (submittedNames.has(name) || submittedNames.has(reversedName)) {
     submittedNames.add(reversedName);
@@ -141,7 +141,7 @@ function verifyWomanWithWikidata() {
         incorrectNames.add(formatName(name));
         console.error(error);
       });
-
+  document.getElementById('checkingText').classList.remove('loading'); // Remove animation 
   submittedNames.add(reversedName);
   submittedNames.add(name);
 }
