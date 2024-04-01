@@ -1,30 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Name a Woman</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <h1>Name a Woman</h1>
+body {
+  font-family: 'Roboto', sans-serif; /* Modern sans-serif font */
+  text-align: center;
+  margin: 40px;
+  background: linear-gradient(135deg, #ffe0e0, #e0efff); 
+}
 
-    <input type="text" id="nameInput" placeholder="Any...?">
-    <button id="submitButton">Submit</button>
+h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
 
-    <div id="result"></div>
-    <p>Women Named: <span id="score">0</span></p>
+input[type="text"], button {
+  padding: 10px 15px; /* More padding */
+  margin: 10px;
+  border-radius: 8px; /* Softer curve for a modern feel */
+  border: 1px solid #ddd; /* Subtle border */
+  font-family: inherit; /* Inherit font from the body */
+}
 
-    <p>Time Remaining: <span id="timer">01:00</span></p> 
+#result {
+  margin-top: 20px;
+  font-size: 20px;
+}
 
-    <div id="resultsPopup" style="display: none;"> 
-        <h2>gg</h2>
-        <p>Bro you only named <span id="finalScore"></span> women?</p>
-        <p><b>Women named</b>: <span id="womenNamed"</span></p>
-        <p><b>Invalid guesses</b>: <span id="invalidGuesses"</span></p>
-        <button onclick="copyResults()">Copy Results</button>
-    </div>
+/* Increased spacing in results */
+#womenNamed, #invalidGuesses {
+  white-space: pre-wrap;
+  margin-bottom: 15px; 
+}
 
-    <script src="script.js"></script>
-</body>
-</html>
+#resultsPopup {
+  display: none;
+  position: fixed; 
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); 
+  background-color: white;
+  padding: 30px; /* More padding for visual comfort */
+  border-radius: 15px; /* More rounded corners */
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); /* Stronger shadow */
+}
+
+#timer, #score {
+  font-weight: bold;
+  font-size: 1.2em;  /* Slightly increased text size */
+}
+
+#checkingText { 
+  font-size: 20px; 
+}
+
+@keyframes loadingDots { /* Same animation as before */
+  0% { opacity: 0.2; }
+  25% { opacity: 0.4; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+#checkingText.loading { /* Apply animation when "loading" class is present */
+  animation: loadingDots 1.2s infinite linear; 
+}
