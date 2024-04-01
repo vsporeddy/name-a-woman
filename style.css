@@ -2,14 +2,29 @@ body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 20px;
+    background-color: #ffe0e0; /* Light pink background */
 }
 
 input[type="text"], button {
     padding: 8px;
     margin: 10px;
+    border-radius: 5px; /* Add a slight curve to input and button */
 }
 
 #result {
     margin-top: 20px;
     font-size: 18px;
 }
+
+/* Style for the results popup */
+#resultsPopup {
+    display: none;
+    position: fixed;  /* Position it in the center  */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center alignment */
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow effect */
+} 
