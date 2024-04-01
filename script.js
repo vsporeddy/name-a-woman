@@ -22,6 +22,8 @@ const correctNames = new Set();
 const incorrectNames = new Set();
 const submittedWikidataIds = new Set();
 
+const womanGenderIds = new Set(['Q6581072', 'Q1052281', 'Q4676163']);
+
 submitButton.addEventListener('click', verifyWomanWithWikidata);
 
 nameInput.addEventListener('keypress', function(event) {
@@ -173,9 +175,13 @@ function checkWikidata(title) {
           }
 
           found = true;
-          if (claims.P21 &&
-              claims.P21[0].mainsnak.datavalue.value.id === 'Q6581072') {
-            isWoman = true;
+          if (claims.P21) {
+            claims.P21.forEach(claim => {
+              let id = claim.mainsnak.datavalue.value.id;
+              if (womanGenderIds.has(id)) {
+                isWoman = true;
+              }
+            });
           }
           if (claims.P31) {
             const instanceOfValues =
