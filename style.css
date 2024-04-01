@@ -16,6 +16,11 @@ input[type="text"], button {
     font-size: 18px;
 }
 
+#womenNamed, #invalidGuesses {
+  white-space: pre-wrap;
+  margin-bottom: 10px; /* Add spacing between names */
+}
+
 /* Style for the results popup */
 #resultsPopup {
     display: none;
