@@ -1,8 +1,36 @@
-body {
-  font-family: 'Roboto', sans-serif; /* Modern sans-serif font */
-  text-align: center;
-  margin: 40px;
-  background: linear-gradient(135deg, #ffe0e0, #e0efff); 
+html, body {
+    min-height: 100%;
+    margin: 0;
+}
+
+@font-face {
+    font-family: 'angelinaregular';
+    src: url('assets/cursive-font-webfont.woff2') format('woff2'),
+         url('assets/cursive-font-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+body { 
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    margin: 40px;
+    background-image: url('assets/paisley.png'); 
+    background-repeat: repeat; 
+    background-color: #f8f8f8; 
+}
+
+.title-image-container h1 { 
+  font-family: 'angelinaregular', cursive; /* Cursive as fallback  */
+  letter-spacing: 3px; 
+}
+
+h1 img {
+    max-width: 100%; 
+    height: auto;  
+    margin-bottom: 20px;
+    box-shadow: 0 0 20px #ffcccc; 
 }
 
 h1 {
