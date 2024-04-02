@@ -9,16 +9,85 @@ html, body {
          url('assets/cursive-font-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
+}
 
+.custom-font {
+    font-family: 'angelinaregular', cursive;
 }
 
 body { 
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Garamond', serif;
     text-align: center;
     margin: 40px;
-    background-image: url('assets/paisley.png'); 
+    background-image: url('assets/leather_1.png'); 
     background-repeat: repeat; 
     background-color: #f8f8f8; 
+}
+
+#cream-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at var(--gradient-x) var(--gradient-y),
+                             rgba(255, 250, 240, 1) 15%,
+                             rgba(0, 0, 0, 0.6) 60%);
+  opacity: 0.5;
+  z-index: -1;
+}
+
+
+#introPopup {
+    display: none;
+    position: fixed; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    background-color: #fffaf0; /* Soft cream color */
+    background-color: rgba(255, 250, 240, 1);    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); 
+    z-index: 100;
+}
+
+#resultsPopup {
+  display: none;
+  position: fixed; 
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); 
+  background-color: #fffaf0; /* Soft cream color */
+  background-color: rgba(255, 250, 240, 1);    padding: 30px;  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  max-height: 300px; 
+  overflow-y: auto; 
+}
+
+ol {
+  text-align: left; /* Left-align the list items */
+}
+
+.mode-description {
+    margin-bottom: 15px; /* Maintain some spacing below */
+    font-size: 0.9em;  /* Slightly smaller font size */
+    color: #A9A9A9; /* Dark gray color */
+}
+
+.mode-description p { /* Target paragraphs within the description */
+    margin-top: 5px;  /* Reduce top margin for closer spacing to buttons */
+}
+
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  display: none; /* Initially hidden */
+  z-index: 99; /* Slightly lower than the popup */
 }
 
 .title-image-container h1 { 
@@ -36,6 +105,30 @@ h1 img {
 h1 {
   font-size: 2.5em;
   margin-bottom: 20px;
+}
+
+h2 {
+  font-weight: 380;
+}
+
+h4 {
+  font-size: 1.5em;
+  font-weight: 300;
+  margin-bottom: -15px;
+}
+
+#gameModeSelection {
+    margin-bottom: 20px;
+    text-align: center; /* Center the buttons */
+}
+
+#timedModeButton, #challengeModeButton {
+    padding: 10px 20px;
+    margin: 0 10px; /* Spacing between buttons */
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background-color: #fff; 
+    cursor: pointer;
 }
 
 input[type="text"], button {
@@ -67,36 +160,16 @@ input[type="text"], button {
   margin-bottom: 15px; 
 }
 
-#resultsPopup {
-  display: none;
-  position: fixed; 
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); 
-  background-color: white;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-  max-height: 300px; 
-  overflow-y: auto; 
-}
-
 #timer, #score {
   font-weight: bold;
   font-size: 1.4em;
 }
 
+#scoreDisplay, #timeDisplay  { /* Assuming this container already exists */
+  position: relative;    
+  top: -10px; /* Adjust the value as needed */
+}
+
 #checkingText { 
   font-size: 15px; 
-}
-
-@keyframes loadingDots { /* Same animation as before */
-  0% { opacity: 0.2; }
-  25% { opacity: 0.4; }
-  50% { opacity: 0.6; }
-  100% { opacity: 1; }
-}
-
-#checkingText.loading { /* Apply animation when "loading" class is present */
-  animation: loadingDots 1.2s infinite linear; 
 }
