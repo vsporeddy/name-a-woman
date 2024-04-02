@@ -330,15 +330,11 @@ function updateGradient() {
   const nameInput =
       document.querySelector('#nameInput');  // Target input element
 
-  // Get position and dimensions of the input field
   const inputRect = nameInput.getBoundingClientRect();
   const inputCenterX = inputRect.left + inputRect.width / 2;
   const inputCenterY = inputRect.top + inputRect.height / 2;
-
-  // Calculate gradient spread (adjust 1.5 for desired effect)
   const gradientSpread = Math.min(inputRect.width, inputRect.height) * 1.5;
 
-  // Update CSS variables on the overlay
   overlay.style.setProperty('--gradient-x', inputCenterX + 'px');
   overlay.style.setProperty('--gradient-y', inputCenterY + 'px');
   overlay.style.setProperty('--gradient-spread', gradientSpread + 'px');
