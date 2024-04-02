@@ -7,8 +7,37 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="cream-overlay"></div>
+    <div id="overlay" style="display: none;"></div>
+    
+    <div id="introPopup" style="display: none;">
+        <h2><span class="custom-font">Name a Woman!</span></h2>
+        <div class="mode-description">
+            <button id="challengeModeButton"><b>100 Women Challenge</b></button>
+            <p>Can you name one hundred women? How long will it take you?</p>
+        </div>
+        <div class="mode-description">
+            <button id="timedModeButton"><b>Timed Mode</b></button>
+            <p>How many women can you name in a minute?<br>(each valid name gives you another five seconds)</p>
+        </div>
+        <h4><span class="custom-font">Rules:</span></h4>
+        <ol>
+          <li>They must have a Wikipedia page.</li>
+          <li>No outside help, no searching!</li>
+          <li>You can name dead women.</li>
+          <li>No fictional characters!</li>
+          <li>Spelling must be close ENOUGH.</li>
+          <li>No repeats!</li>
+        </ol>
+    </div>
+    
     <div class="title-image-container"> 
-        <h1>Name a Woman!</h1> 
+        <h1>Name a Woman</h1> 
+    <div id="scoreDisplay" style="display: none;">
+      <p>Women named: <span id="score">0</span></p>
+    </div>
+    <div id="timeDisplay" style="display: none;">
+      <p><span id="timeLabel"></span> <span id="timer"></span></p> 
     </div>
     <input type="text" id="nameInput" placeholder="Any...?">
     <button id="submitButton">Submit</button>
@@ -16,11 +45,9 @@
     <div id="result">
       <span id="checkingText"></span>
     </div>
-    <p>Women Named: <span id="score">0</span></p>
-    <p>Time Remaining: <span id="timer">01:00</span></p> 
 
     <div id="resultsPopup" style="display: none;"> 
-        <h2>Thanks for Playing!</h2>
+        <h2><span class="custom-font">Thanks for playing!</span></h2>
         <p>You named <span id="finalScore"></span> women!</p>
         <p><b>Women named</b>: <span id="womenNamed"</span></p>
         <p><b>Invalid guesses</b>: <span id="invalidGuesses"</span></p>
