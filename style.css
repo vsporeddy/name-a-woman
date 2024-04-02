@@ -49,18 +49,18 @@ body {
     border-radius: 15px;
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); 
     z-index: 100;
-    max-height: 80vh; /* A relative height - 80% of viewport height*/
+    max-height: 80vh;
     overflow-y: auto;
 }
 
-@media (max-width: 600px) { /* Adjust breakpoint as needed */
+@media (max-width: 600px) {
   #introPopup {
-    font-size: 0.9em; /* Slightly smaller text */
-    padding: 20px;    /* Reduce padding */
+    font-size: 0.9em;
+    padding: 20px;
   }
 
   .mode-description {
-    font-size: 0.8em; /* Reduce mode description font size */
+    font-size: 0.8em;
   }
 }
 
@@ -180,9 +180,9 @@ input[type="text"], button {
   font-size: 1.4em;
 }
 
-#scoreDisplay, #timeDisplay  { /* Assuming this container already exists */
+#scoreDisplay, #timeDisplay  {
   position: relative;    
-  top: -10px; /* Adjust the value as needed */
+  top: -10px;
 }
 
 #checkingText { 
