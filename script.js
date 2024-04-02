@@ -321,6 +321,8 @@ function closeIntroPopup() {
 function displayIntroPopup() {
   document.getElementById('introPopup').style.display = 'block';
   document.getElementById('overlay').style.display = 'block';
+  var availableHeight = window.innerHeight * 0.8; // 80% of screen height
+  introPopup.style.maxHeight = availableHeight + 'px';
 }
 
 function updateGradient() {
