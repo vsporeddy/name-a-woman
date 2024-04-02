@@ -37,7 +37,6 @@ body {
   z-index: -1;
 }
 
-
 #introPopup {
     display: none;
     position: fixed; 
@@ -49,6 +48,19 @@ body {
     border-radius: 15px;
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); 
     z-index: 100;
+    max-height: 80vh; /* A relative height - 80% of viewport height*/
+    overflow-y: auto;
+}
+
+@media (max-width: 600px) { /* Adjust breakpoint as needed */
+  #introPopup {
+    font-size: 0.9em; /* Slightly smaller text */
+    padding: 20px;    /* Reduce padding */
+  }
+
+  .mode-description {
+    font-size: 0.8em; /* Reduce mode description font size */
+  }
 }
 
 #resultsPopup {
