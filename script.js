@@ -1,20 +1,32 @@
 const nameInput = document.getElementById('nameInput');
 const submitButton = document.getElementById('submitButton');
 const resultDiv = document.getElementById('result');
-const scoreDisplay = document.getElementById('score');
+const timedModeButton = document.getElementById('timedModeButton');
+const challengeModeButton = document.getElementById('challengeModeButton');
+const timerDisplay = document.getElementById('timer');
+const score = document.getElementById('score');
+const timeReward = 5;
+const gameDuration = 60;  // Time in seconds for timed mode
+const scoreLimit = 100;   // Score limit for challenge mode
+const timeDisplay = document.getElementById('timeDisplay');
+const timeLabel = document.getElementById('timeLabel');
+const scoreDisplay = document.getElementById('scoreDisplay');
 
-const errorMessage = 'We couldn\'t find that person on Wikipedia. We\'re not strict on spelling, but try your best!';
-const genderErrorMessage = 'Based on publicly available information on Wikipedia, it seems this person\'s gender identity may not be categorized as "woman".\r\nWikipedia isn\'t perfect, and gender identity is complex. If you think this is incorrect, please submit feedback!';
+const errorMessage =
+    'We couldn\'t find that person on Wikipedia. We\'re not strict on spelling, but try your best!';
+const genderErrorMessage =
+    'Based on publicly available information on Wikipedia, it seems this person\'s gender identity may not be categorized as "woman".\r\nWikipedia isn\'t perfect, and gender identity is complex. If you think this is incorrect, please submit feedback!';
 const correctMessage = 'You named a woman!';
-const fictionalMessage = 'That\'s a fictional character! Try to name real human women!';
+const fictionalMessage =
+    'Wikipedia seems to have this person categorized as fictional. If you think this is incorrect, please submit feedback!';
 const repeatMessage = 'You already said ';
 const correctRepeatMessage = 'You already got a point for ';
 
-const timeReward = 5;
-const gameDuration = 60;  // Time in seconds
 let timeRemaining = gameDuration;
 let timerInterval;  // To store the interval reference
-let score = 0;
+let currentScore = 0;
+let isTimedMode = true;  // Default to timed mode initially
+let stopwatchInterval;
 
 const submittedNames = new Set();
 const correctNames = new Set();
@@ -25,7 +37,16 @@ const womanGenderIds =
     new Set(['Q6581072', 'Q1052281', 'Q4676163', 'Q575', 'Q43445', 'Q10675']);
 const transManId = 'Q2449503';
 
+window.addEventListener('DOMContentLoaded', initGradient);  //  After page loads
+window.addEventListener('resize', updateGradient);  // Handle window resizing
+
+function initGradient() {
+  updateGradient();
+}
+
 submitButton.addEventListener('click', verifyWomanWithWikidata);
+timedModeButton.addEventListener('click', closeIntroPopup);
+challengeModeButton.addEventListener('click', closeIntroPopup);
 
 nameInput.addEventListener('keypress', function(event) {
   if (event.key === 'Enter' || event.keyCode === 13) {  // Check for 'Enter' key
@@ -33,6 +54,15 @@ nameInput.addEventListener('keypress', function(event) {
     verifyWomanWithWikidata();
   }
 });
+
+nameInput.addEventListener(
+    'keydown', function() {                 // 'keydown' for any keypress
+      if (!timerInterval && isTimedMode) {  // Check if timer isn't running yet
+        startTimer();
+      } else if (!stopwatchInterval && !isTimedMode) {
+        startStopwatch();
+      }
+    });
 
 function showResultsPopup() {
   document.getElementById('finalScore').textContent = correctNames.size;
@@ -57,6 +87,9 @@ function copyResults() {
 function formatWikiPageTitle(name) {
   const parts = name.split(' ');
   return parts.map(part => part[0].toUpperCase() + part.slice(1)).join('_');
+  // const formattedName = name.replace(/[\.\,\-']/g, ''); // Remove '.', ',',
+  // '-'
+  return formattedName;
 }
 
 function formatName(name) {
@@ -65,93 +98,79 @@ function formatName(name) {
 }
 
 function verifyWomanWithWikidata() {
-  const name = nameInput.value.toLowerCase();  // Convert to lowercase
-  const reversedName = reverse(name);
-  nameInput.value = '';  // Clear input field
-  resultDiv.innerHTML =
-      '<span id="checkingText" class="loading">Searching...</span>';
+  const name = nameInput.value.toLowerCase();
+  nameInput.value = '';
+  resultDiv.innerHTML = '<span id="checkingText">Searching...</span>';
 
-  if (submittedNames.has(name) || submittedNames.has(reversedName)) {
-    submittedNames.add(reversedName);
-    submittedNames.add(name);
-    resultDiv.textContent = repeatMessage + formatName(name) + "!";
+  if (submittedNames.has(name)) {
+    resultDiv.textContent = repeatMessage + formatName(name) + '!';
     return;
   }
 
-  const nameParts = name.split(' ');
-  const originalTitle = formatWikiPageTitle(name);
+  const title = formatWikiPageTitle(name);
 
-  let reversedTitle = null;
-  if (nameParts.length > 1) {
-    reversedTitle = formatWikiPageTitle(reversedName);
-  }
-
-  const originalPromise = checkWikidata(originalTitle);
-  const reversedPromise =
-      reversedTitle ? checkWikidata(reversedTitle) : Promise.resolve(null);
-
-  Promise.all([originalPromise, reversedPromise])
-      .then(([originalResult, reversedResult]) => {
-        if ((originalResult && originalResult.isHuman &&
-             originalResult.isFemale) ||
-            (reversedResult && reversedResult.isHuman &&
-             reversedResult.isFemale)) {
-          if ((originalResult && originalResult.isDuplicate) ||
-              (reversedResult && reversedResult.isDuplicate)) {
-            resultDiv.textContent = correctRepeatMessage + formatName(name) + "!";
+  checkWikidata(title)
+      .then(result => {
+        if (result.isHuman && result.isFemale) {
+          if (result.isDuplicate) {
+            resultDiv.textContent =
+                correctRepeatMessage + formatName(name) + '!';
           } else {
-            score++;
-            scoreDisplay.textContent = score;
-            resultDiv.innerHTML = `<span class="correct-result">${correctMessage}</span>`;
+            resultDiv.innerHTML =
+                `<span class="correct-result">${correctMessage}</span>`;
             correctNames.add(formatName(name));
-            if (timeRemaining < 60) {
-              timeRemaining += timeReward;
-            }
+            incrementScore();
           }
-          if (originalResult.entityId) {
-            submittedWikidataIds.add(originalResult.entityId);
-          } else if (reversedResult.entityId) {
-            submittedWikidataIds.add(reversedResult.entityId);
-          }
-        } else if (
-            originalResult && !originalResult.isFemale &&
-            originalResult.isHuman) {
-          resultDiv.innerHTML = `<span class="incorrect-result">${genderErrorMessage}</span>`;
+        } else if (result.isHuman && !result.isFemale) {
+          resultDiv.innerHTML =
+              `<span class="incorrect-result">${genderErrorMessage}</span>`;
           incorrectNames.add(formatName(name));
-        } else if (
-            originalResult && !originalResult.isHuman &&
-            originalResult.isFemale) {
-          resultDiv.innerHTML = `<span class="incorrect-result">${fictionalMessage}</span>`;
-          incorrectNames.add(formatName(name));
-        } else if (
-            reversedResult && !reversedResult.isFemale &&
-            reversedResult.isHuman) {
-          resultDiv.innerHTML = `<span class="incorrect-result">${genderErrorMessage}</span>`;
-          incorrectNames.add(formatName(name));
-        } else if (
-            reversedResult && !reversedResult.isHuman &&
-            reversedResult.isFemale) {
-          resultDiv.innerHTML = `<span class="incorrect-result">${fictionalMessage}</span>`;
+        } else if (!result.isHuman && result.isFemale) {
+          resultDiv.innerHTML =
+              `<span class="incorrect-result">${fictionalMessage}</span>`;
           incorrectNames.add(formatName(name));
         } else {
           resultDiv.innerHTML = errorMessage;
           incorrectNames.add(formatName(name));
         }
+
+        submittedNames.add(name);
       })
       .catch(error => {
         resultDiv.textContent = errorMessage;
         incorrectNames.add(formatName(name));
         console.error(error);
       });
-  document.getElementById('checkingText')
-      .classList.remove('loading');  // Remove animation
-  submittedNames.add(reversedName);
-  submittedNames.add(name);
 }
 
-function reverse(name) {
-  const reversedName = name.split(' ').reverse().join(' ');
-  return reversedName;
+function containsFemale(claims) {
+  let isFemale = false;
+  if (claims.P21) {  // Ensure the 'P21' (gender) property exists
+    // Check if any gender IDs match recognized female-identifying IDs
+    isFemale = claims.P21.some(claim => {
+      let id = claim.mainsnak.datavalue.value.id;
+      return womanGenderIds.has(id);
+    });
+
+    // Ensure none of the gender IDs match the 'trans man' ID.
+    // Sometimes entries for trans man are still associated with
+    // female-identifying IDs.
+    isFemale = isFemale && !claims.P21.some(claim => {
+      let id = claim.mainsnak.datavalue.value.id;
+      return id === transManId;
+    });
+  }
+  return isFemale;
+}
+
+function containsHuman(claims) {
+  if (claims.P31) {
+    return claims.P31.some(claim => {
+      const instanceId = claim.mainsnak.datavalue.value.id;
+      return instanceId === 'Q5';
+    });
+  }
+  return false;
 }
 
 function checkWikidata(title) {
@@ -159,61 +178,50 @@ function checkWikidata(title) {
       `https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=${
           title}&props=claims&format=json&origin=*&normalize=1`;
 
-
   return fetch(wikidataQueryUrl)
       .then(response => response.json())
       .then(data => {
         const entities = data.entities;
 
-        let found = false;
-        let isHuman = false;
-        let isFemale = false;
-        let isDuplicate = false;
-        let entityId = null;
-
         if (!!entities) {
+          // for (const entityId in entities) {
+          //   let isDuplicate = submittedWikidataIds.has(entityId);
+          //   const claims = entities[entityId].claims;
+          //   let isFemale = containsFemale(claims);
+          //   let isHuman = containsHuman(claims);
+
+          //   if (isFemale && isHuman) {
+          //     submittedWikidataIds.add(entityId);
+          //     return {
+          //       found: true,
+          //       isHuman: true,
+          //       isFemale: true,
+          //       isDuplicate: isDuplicate,
+          //       entityId: entityId
+          //     };
+          //   }
+          // }
+
+          // If no valid match, fall back to results of first entity.
           entityId = Object.keys(entities)[0];
           const claims = entities[entityId].claims;
-
-          if (submittedWikidataIds.has(entityId)) {
-            isDuplicate = true;
-          }
-
-          found = true;
-          if (claims.P21) {  // Ensure the 'P21' (gender) property exists
-            // Check if any gender IDs match recognized female-identifying IDs
-            isFemale = claims.P21.some(claim => {
-              let id = claim.mainsnak.datavalue.value.id;
-              return womanGenderIds.has(id);
-            });
-
-            // Ensure none of the gender IDs match the 'trans man' ID.
-            // Sometimes entries for trans man are still associated with
-            // female-identifying IDs.
-            isFemale = isFemale && !claims.P21.some(claim => {
-              let id = claim.mainsnak.datavalue.value.id;
-              return id === transManId;
-            });
-          }
-
-          if (claims.P31) {  // Ensure the 'P31' (instance of) property exists
-            // Extract IDs of all 'instance of' claims
-            const instanceOfValues =
-                claims.P31.map(claim => claim.mainsnak.datavalue.value.id);
-
-            // Check if any 'instance of' IDs include 'Q5' (human)
-            if (instanceOfValues.includes('Q5')) {
-              isHuman = true;
-            }
-          }
+          isFemale = containsFemale(claims);
+          isHuman = containsHuman(claims);
+          return {
+            found: true,
+            isHuman: isHuman,
+            isFemale: isFemale,
+            isDuplicate: false,
+            entityId: entityId
+          };
         }
-
+        // No match found
         return {
-          found: found,
-          isHuman: isHuman,
-          isFemale: isFemale,
-          isDuplicate: isDuplicate,
-          entityId: entityId
+          found: false,
+          isHuman: false,
+          isFemale: false,
+          isDuplicate: false,
+          entityId: null
         };
       })
       .catch(error => {
@@ -227,8 +235,26 @@ function checkWikidata(title) {
       });
 }
 
+timedModeButton.addEventListener('click', () => {
+  isTimedMode = true;
+  scoreDisplay.style.display = 'block';
+  timeLabel.textContent = 'Remaining Time:';
+  timeDisplay.style.display = 'block';
+  score.textContent = 0;
+  timerDisplay.textContent = '01:00';
+});
+
+challengeModeButton.addEventListener('click', () => {
+  isTimedMode = false;
+  scoreDisplay.style.display = 'block';
+  timeLabel.textContent = 'Elapsed Time:';
+  timeDisplay.style.display = 'block';
+  score.textContent = 0;
+  timerDisplay.textContent = '00:00';
+});
+
 function startTimer() {
-  const timerDisplay = document.getElementById('timer');
+  timeRemaining = gameDuration;  // Reset time when starting
   timerInterval = setInterval(() => {
     timeRemaining--;
     const minutes = Math.floor(timeRemaining / 60);
@@ -244,10 +270,42 @@ function startTimer() {
   }, 1000);
 }
 
+function startStopwatch() {
+  let startTime = Date.now();
+  stopwatchInterval = setInterval(() => {
+    const elapsedTime = Date.now() - startTime;
+    const formattedTime = formatTime(elapsedTime);
+    timerDisplay.textContent = formattedTime;
+  }, 1000);  // Update every 1000 milliseconds (1 second)
+}
+
+function formatTime(milliseconds) {
+  let seconds = Math.floor(milliseconds / 1000);
+  let minutes = Math.floor(seconds / 60);
+  seconds = seconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${
+      seconds.toString().padStart(2, '0')}`;
+}
+
 function endGame() {
-  clearInterval(timerInterval);
+  if (isTimedMode) {
+    clearInterval(timerInterval);
+  } else {
+    clearInterval(stopwatchInterval);
+  }
   disableInputAndButton();  // Prevent further submissions
   showResultsPopup();
+}
+
+function incrementScore() {
+  currentScore++;
+  score.textContent = currentScore;
+  if (timeRemaining < 60 && isTimedMode) {
+    timeRemaining += timeReward;
+  }
+  if (currentScore >= scoreLimit && !isTimedMode) {
+    endGame();
+  }
 }
 
 function disableInputAndButton() {
@@ -255,4 +313,33 @@ function disableInputAndButton() {
   submitButton.disabled = true;
 }
 
-startTimer();
+function closeIntroPopup() {
+  document.getElementById('introPopup').style.display = 'none';
+  document.getElementById('overlay').style.display = 'none';
+}
+
+function displayIntroPopup() {
+  document.getElementById('introPopup').style.display = 'block';
+  document.getElementById('overlay').style.display = 'block';
+}
+
+function updateGradient() {
+  const overlay = document.getElementById('cream-overlay');
+  const nameInput =
+      document.querySelector('#nameInput');  // Target input element
+
+  // Get position and dimensions of the input field
+  const inputRect = nameInput.getBoundingClientRect();
+  const inputCenterX = inputRect.left + inputRect.width / 2;
+  const inputCenterY = inputRect.top + inputRect.height / 2;
+
+  // Calculate gradient spread (adjust 1.5 for desired effect)
+  const gradientSpread = Math.min(inputRect.width, inputRect.height) * 1.5;
+
+  // Update CSS variables on the overlay
+  overlay.style.setProperty('--gradient-x', inputCenterX + 'px');
+  overlay.style.setProperty('--gradient-y', inputCenterY + 'px');
+  overlay.style.setProperty('--gradient-spread', gradientSpread + 'px');
+}
+
+displayIntroPopup();
