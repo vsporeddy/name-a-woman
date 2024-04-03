@@ -156,9 +156,23 @@ input[type="text"], button {
 
 #result {
   margin-top: 20px;
+  margin-bottom: 30px;
   font-size: 18px;
   white-space: pre-wrap;
   height: 50px;
+}
+
+#bestMatch { 
+  margin-top: 40px;
+  font-size: 18px;
+  white-space: pre-wrap;
+  height: 50px;
+  color: #666; /* Text within #bestMatch will be #666 */
+}
+
+#bestMatch a {
+  color: #581845; 
+  text-decoration: none;
 }
 
 .correct-result { 
