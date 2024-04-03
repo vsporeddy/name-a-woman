@@ -191,6 +191,15 @@ async function searchByName(name) {
     }
     resultsArr.push(result)
   }
+  if (resultsArr.length === 0) {
+    return {
+          isHuman: false,
+          isFemale: false,
+          isDuplicate: false,
+          label: null,
+          wikiPage: null
+        }; 
+  }
   return resultsArr[0];
 }
 
