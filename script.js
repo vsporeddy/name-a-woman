@@ -145,7 +145,7 @@ function verifyWomanWithWikidata() {
 
 function containsFemale(claims) {
   let isFemale = false;
-  if (claims.P21) {  // Ensure the 'P21' (gender) property exists
+  if (claims && claims.P21) {  // Ensure the 'P21' (gender) property exists
     // Check if any gender IDs match recognized female-identifying IDs
     isFemale = claims.P21.some(claim => {
       let id = claim.mainsnak.datavalue.value.id;
@@ -164,7 +164,7 @@ function containsFemale(claims) {
 }
 
 function containsHuman(claims) {
-  if (claims.P31) {
+  if (claims && claims.P31) {
     return claims.P31.some(claim => {
       const instanceId = claim.mainsnak.datavalue.value.id;
       return instanceId === 'Q5';
@@ -182,11 +182,12 @@ function checkWikidata(title) {
       .then(response => response.json())
       .then(data => {
         const entities = data.entities;
-
         if (!!entities) {
           for (const entityId in entities) {
+            console.log(entityId);
             let isDuplicate = submittedWikidataIds.has(entityId);
             const claims = entities[entityId].claims;
+
             let isFemale = containsFemale(claims);
             let isHuman = containsHuman(claims);
 
@@ -225,6 +226,7 @@ function checkWikidata(title) {
         };
       })
       .catch(error => {
+        console.log(error);
         return {
           found: false,
           isHuman: false,
@@ -321,7 +323,7 @@ function closeIntroPopup() {
 function displayIntroPopup() {
   document.getElementById('introPopup').style.display = 'block';
   document.getElementById('overlay').style.display = 'block';
-  var availableHeight = window.innerHeight * 0.8; // 80% of screen height
+  var availableHeight = window.innerHeight * 0.8;  // 80% of screen height
   introPopup.style.maxHeight = availableHeight + 'px';
 }
 
