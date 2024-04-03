@@ -1,11 +1,12 @@
 const nameInput = document.getElementById('nameInput');
 const submitButton = document.getElementById('submitButton');
 const resultDiv = document.getElementById('result');
+const bestMatchDiv = document.getElementById('bestMatch');
 const timedModeButton = document.getElementById('timedModeButton');
 const challengeModeButton = document.getElementById('challengeModeButton');
 const timerDisplay = document.getElementById('timer');
 const score = document.getElementById('score');
-const timeReward = 5;
+const timeReward = 3;
 const gameDuration = 60;  // Time in seconds for timed mode
 const scoreLimit = 100;   // Score limit for challenge mode
 const timeDisplay = document.getElementById('timeDisplay');
@@ -13,7 +14,7 @@ const timeLabel = document.getElementById('timeLabel');
 const scoreDisplay = document.getElementById('scoreDisplay');
 
 const errorMessage =
-    'We couldn\'t find that person on Wikipedia. We\'re not strict on spelling, but try your best!';
+    'We couldn\'t find that woman on Wikipedia. We\'re not strict on spelling, but try your best!';
 const genderErrorMessage =
     'Based on publicly available information on Wikipedia, it seems this person\'s gender identity may not be categorized as "woman".\r\nWikipedia isn\'t perfect, and gender identity is complex. If you think this is incorrect, please submit feedback!';
 const correctMessage = 'You named a woman!';
@@ -44,14 +45,14 @@ function initGradient() {
   updateGradient();
 }
 
-submitButton.addEventListener('click', verifyWomanWithWikidata);
+submitButton.addEventListener('click', handleNameSubmission);
 timedModeButton.addEventListener('click', closeIntroPopup);
 challengeModeButton.addEventListener('click', closeIntroPopup);
 
 nameInput.addEventListener('keypress', function(event) {
   if (event.key === 'Enter' || event.keyCode === 13) {  // Check for 'Enter' key
     event.preventDefault();  // Prevent default form submission
-    verifyWomanWithWikidata();
+    handleNameSubmission();
   }
 });
 
@@ -86,7 +87,7 @@ function copyResults() {
 
 function formatWikiPageTitle(name) {
   const parts = name.split(' ');
-  return parts.map(part => part[0].toUpperCase() + part.slice(1)).join('_');
+  return parts.map(part => part[0] + part.slice(1)).join('_');
   // const formattedName = name.replace(/[\.\,\-']/g, ''); // Remove '.', ',',
   // '-'
   return formattedName;
@@ -97,8 +98,8 @@ function formatName(name) {
   return parts.map(part => part[0].toUpperCase() + part.slice(1)).join(' ');
 }
 
-function verifyWomanWithWikidata() {
-  const name = nameInput.value.toLowerCase();
+async function handleNameSubmission() {
+  const name = nameInput.value;
   nameInput.value = '';
   resultDiv.innerHTML = '<span id="checkingText">Searching...</span>';
 
@@ -106,44 +107,46 @@ function verifyWomanWithWikidata() {
     resultDiv.textContent = repeatMessage + formatName(name) + '!';
     return;
   }
+  submittedNames.add(name);
 
-  const title = formatWikiPageTitle(name);
+  let firstMatch = await getEntityByName(name);
+  if (firstMatch.isHuman && firstMatch.isFemale && firstMatch.label && firstMatch.wikiPage) {
+    handleValidSubmission(name, firstMatch.isDuplicate);
+    displayBestMatch(firstMatch.label, firstMatch.wikiPage);
+    return;
+  }
+  let searchMatch = await searchByName(name);
+  if (searchMatch.isHuman && searchMatch.isFemale && searchMatch.label && searchMatch.wikiPage) {
+    handleValidSubmission(name, searchMatch.isDuplicate);
+    displayBestMatch(searchMatch.label, searchMatch.wikiPage);
+    return;
+  }
+  if (firstMatch.isHuman && !firstMatch.isFemale && firstMatch.label && firstMatch.wikiPage) {
+    handleNonFemaleSubmission(name);
+    displayBestMatch(firstMatch.label, firstMatch.wikiPage);
+    return;
+  }
+  if (!firstMatch.isHuman && firstMatch.isFemale && firstMatch.label && firstMatch.wikiPage) {
+    handleFictionalSubmission(name);
+    displayBestMatch(firstMatch.label, firstMatch.wikiPage);
+    return;
+  }
+  if (searchMatch.isHuman && !searchMatch.isFemale && searchMatch.label && searchMatch.wikiPage) {
+    handleNonFemaleSubmission(name);
+    displayBestMatch(searchMatch.label, searchMatch.wikiPage);
+    return;
+  }
+  if (!searchMatch.isHuman && searchMatch.isFemale && searchMatch.label && searchMatch.wikiPage) {
+    handleFictionalSubmission(name);
+    displayBestMatch(searchMatch.label, searchMatch.wikiPage);
+    return;
+  }
 
-  checkWikidata(title)
-      .then(result => {
-        if (result.isHuman && result.isFemale) {
-          if (result.isDuplicate) {
-            resultDiv.textContent =
-                correctRepeatMessage + formatName(name) + '!';
-          } else {
-            resultDiv.innerHTML =
-                `<span class="correct-result">${correctMessage}</span>`;
-            correctNames.add(formatName(name));
-            incrementScore();
-          }
-        } else if (result.isHuman && !result.isFemale) {
-          resultDiv.innerHTML =
-              `<span class="incorrect-result">${genderErrorMessage}</span>`;
-          incorrectNames.add(formatName(name));
-        } else if (!result.isHuman && result.isFemale) {
-          resultDiv.innerHTML =
-              `<span class="incorrect-result">${fictionalMessage}</span>`;
-          incorrectNames.add(formatName(name));
-        } else {
-          resultDiv.innerHTML = errorMessage;
-          incorrectNames.add(formatName(name));
-        }
-
-        submittedNames.add(name);
-      })
-      .catch(error => {
-        resultDiv.textContent = errorMessage;
-        incorrectNames.add(formatName(name));
-        console.error(error);
-      });
+  displayBestMatch(null, null);
+  handleInvalidSubmission(name);
 }
 
-function containsFemale(claims) {
+function containsFemaleAttribute(claims) {
   let isFemale = false;
   if (claims && claims.P21) {  // Ensure the 'P21' (gender) property exists
     // Check if any gender IDs match recognized female-identifying IDs
@@ -163,7 +166,7 @@ function containsFemale(claims) {
   return isFemale;
 }
 
-function containsHuman(claims) {
+function containsHumanAttribute(claims) {
   if (claims && claims.P31) {
     return claims.P31.some(claim => {
       const instanceId = claim.mainsnak.datavalue.value.id;
@@ -173,66 +176,70 @@ function containsHuman(claims) {
   return false;
 }
 
-function checkWikidata(title) {
-  const wikidataQueryUrl =
-      `https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=${
-          title}&props=claims&format=json&origin=*&normalize=1`;
+async function searchByName(name) {
+  const searchQueryUrl =
+      `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${
+          name}&language=en&limit=2&format=json&origin=*`;
 
-  return fetch(wikidataQueryUrl)
+  let data = await fetch(searchQueryUrl).then(response => response.json());
+  const results = data.search;
+  resultsArr = [];
+  for (const key in results) {
+    let result = await getEntityById(results[key].id);
+    if (result.isHuman && result.isFemale) {
+      return result;
+    }
+    resultsArr.push(result)
+  }
+  return resultsArr[0];
+}
+
+function getEntityById(id) {
+  const url =
+      `https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&ids=${
+          id}&props=labels|claims|sitelinks/urls&format=json&origin=*&normalize=1`;
+  return fetchWikidataResponse(url);
+}
+
+function getEntityByName(name) {
+  // searchWikidataByName(name);
+  const url = `https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=${
+      name}&props=labels|claims|sitelinks/urls&format=json&origin=*&normalize=1`;
+  return fetchWikidataResponse(url);
+}
+
+function fetchWikidataResponse(url) {
+  return fetch(url)
       .then(response => response.json())
       .then(data => {
         const entities = data.entities;
-        if (!!entities) {
-          for (const entityId in entities) {
-            console.log(entityId);
-            let isDuplicate = submittedWikidataIds.has(entityId);
-            const claims = entities[entityId].claims;
+        entityId = Object.keys(entities)[0];
+        const claims = entities[entityId].claims;
+        let isDuplicate = submittedWikidataIds.has(entityId);
+        let isFemale = containsFemaleAttribute(claims);
+        let isHuman = containsHumanAttribute(claims);
 
-            let isFemale = containsFemale(claims);
-            let isHuman = containsHuman(claims);
+        const enwikiSitelink = entities[entityId].sitelinks.enwiki;
+        const wikipediaUrl = enwikiSitelink ? enwikiSitelink.url : null;
+        const label = entities[entityId].labels?.en?.value;
 
-            if (isFemale && isHuman) {
-              submittedWikidataIds.add(entityId);
-              return {
-                found: true,
-                isHuman: true,
-                isFemale: true,
-                isDuplicate: isDuplicate,
-                entityId: entityId
-              };
-            }
-          }
-
-          // If no valid match, fall back to results of first entity.
-          entityId = Object.keys(entities)[0];
-          const claims = entities[entityId].claims;
-          isFemale = containsFemale(claims);
-          isHuman = containsHuman(claims);
-          return {
-            found: true,
-            isHuman: isHuman,
-            isFemale: isFemale,
-            isDuplicate: false,
-            entityId: entityId
-          };
-        }
-        // No match found
+        submittedWikidataIds.add(entityId);
         return {
-          found: false,
-          isHuman: false,
-          isFemale: false,
-          isDuplicate: false,
-          entityId: null
+          isHuman: isHuman,
+          isFemale: isFemale,
+          isDuplicate: isDuplicate,
+          label: label,
+          wikiPage: wikipediaUrl
         };
       })
       .catch(error => {
         console.log(error);
         return {
-          found: false,
           isHuman: false,
           isFemale: false,
           isDuplicate: false,
-          entityId: null
+          label: null,
+          wikiPage: null
         };
       });
 }
@@ -297,6 +304,42 @@ function endGame() {
   }
   disableInputAndButton();  // Prevent further submissions
   showResultsPopup();
+}
+
+function handleInvalidSubmission(name) {
+  resultDiv.innerHTML = `<span class="incorrect-result">${errorMessage}</span>`;
+  incorrectNames.add(formatName(name));
+}
+
+function handleNonFemaleSubmission(name) {
+  resultDiv.innerHTML =
+      `<span class="incorrect-result">${genderErrorMessage}</span>`;
+  incorrectNames.add(formatName(name));
+}
+
+function handleFictionalSubmission(name) {
+  resultDiv.innerHTML =
+      `<span class="incorrect-result">${fictionalMessage}</span>`;
+  incorrectNames.add(formatName(name));
+}
+
+function handleValidSubmission(name, isDuplicate) {
+  if (isDuplicate) {
+    resultDiv.textContent = correctRepeatMessage + formatName(name) + '!';
+    return;
+  }
+  resultDiv.innerHTML = `<span class="correct-result">${correctMessage}</span>`;
+  correctNames.add(formatName(name));
+  incrementScore();
+}
+
+function displayBestMatch(label, url) {
+  if (label && url) {
+    bestMatchDiv.innerHTML =
+        `The best match we found was <a href="${url}">${label}.</a>`;
+  } else {
+    bestMatchDiv.innerHTML = ``;
+  }
 }
 
 function incrementScore() {
