@@ -184,23 +184,23 @@ function checkWikidata(title) {
         const entities = data.entities;
 
         if (!!entities) {
-          // for (const entityId in entities) {
-          //   let isDuplicate = submittedWikidataIds.has(entityId);
-          //   const claims = entities[entityId].claims;
-          //   let isFemale = containsFemale(claims);
-          //   let isHuman = containsHuman(claims);
+          for (const entityId in entities) {
+            let isDuplicate = submittedWikidataIds.has(entityId);
+            const claims = entities[entityId].claims;
+            let isFemale = containsFemale(claims);
+            let isHuman = containsHuman(claims);
 
-          //   if (isFemale && isHuman) {
-          //     submittedWikidataIds.add(entityId);
-          //     return {
-          //       found: true,
-          //       isHuman: true,
-          //       isFemale: true,
-          //       isDuplicate: isDuplicate,
-          //       entityId: entityId
-          //     };
-          //   }
-          // }
+            if (isFemale && isHuman) {
+              submittedWikidataIds.add(entityId);
+              return {
+                found: true,
+                isHuman: true,
+                isFemale: true,
+                isDuplicate: isDuplicate,
+                entityId: entityId
+              };
+            }
+          }
 
           // If no valid match, fall back to results of first entity.
           entityId = Object.keys(entities)[0];
