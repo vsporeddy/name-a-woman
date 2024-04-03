@@ -155,16 +155,16 @@ input[type="text"], button {
 }
 
 #result {
-  margin-top: 20px;
+  margin-top: 5px;
   margin-bottom: 30px;
-  font-size: 18px;
+  font-size: 16px;
   white-space: pre-wrap;
   height: 50px;
 }
 
 #bestMatch { 
   margin-top: 40px;
-  font-size: 18px;
+  font-size: 16px;
   white-space: pre-wrap;
   height: 50px;
   color: #666; /* Text within #bestMatch will be #666 */
