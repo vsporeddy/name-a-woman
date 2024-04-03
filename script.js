@@ -16,7 +16,7 @@ const scoreDisplay = document.getElementById('scoreDisplay');
 const errorMessage =
     'We couldn\'t find that woman on Wikipedia. We\'re not strict on spelling, but try your best!';
 const genderErrorMessage =
-    'Based on publicly available information on Wikipedia, it seems this person\'s gender identity may not be categorized as "woman".\r\nWikipedia isn\'t perfect, and gender identity is complex. If you think this is incorrect, please submit feedback!';
+    'This person\'s gender identity may not be categorized as "woman". Wikipedia isn\'t perfect, and gender identity is complex. If you think this is incorrect, please submit feedback!';
 const correctMessage = 'You named a woman!';
 const fictionalMessage =
     'Wikipedia seems to have this person categorized as fictional. If you think this is incorrect, please submit feedback!';
