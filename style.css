@@ -1,237 +1,67 @@
-html, body {
-  min-height: 100%;
-  margin: 0;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name a Woman</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="cream-overlay"></div>
+    <div id="overlay" style="display: none;"></div>
 
-@font-face {
-  font-family: 'angelinaregular';
-  src: url('assets/cursive-font-webfont.woff2') format('woff2'),
-        url('assets/cursive-font-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
+    <div id="introPopup" style="display: none;">
+        <h2><span class="custom-font">Game Modes:</span></h2>
+        <div class="mode-description">
+            <button id="challengeModeButton">100 Women</button>
+            <p>Can you name one hundred women? How long will it take you?</p>
+        </div>
+        <div class="mode-description">
+            <button id="timedModeButton">Time Rush</button>
+            <p>How many women can you name in a minute?</p>
+        </div>
+        <h4><span class="custom-font">Rules:</span></h4>
+        <ol>
+          <li>They must have a Wikipedia page.</li>
+          <li>No outside help, no searching!</li>
+          <li>You can name dead women.</li>
+          <li>No fictional characters!</li>
+          <li>Spelling must be close ENOUGH.</li>
+          <li>No repeats!</li>
+        </ol>
+    </div>
 
-@font-face {
-  font-family: 'madimi';
-  src: url('assets/madimi.woff2') format('woff2'),
-  font-weight: normal;
-  font-style: normal;
-}
+    <div class="title-image-container"> 
+        <h1>Name a Woman</h1> 
+    <div id="scoreDisplay" style="display: none;">
+      <p>Women named: <span id="score">0</span></p>
+    </div>
+    <div id="timeDisplay" style="display: none;">
+      <p><span id="timeLabel"></span> <span id="timer"></span></p> 
+    </div>
+    <input type="text" id="nameInput" placeholder="Any...?">
+    <button id="submitButton">Submit</button>
 
-.custom-font {
-  font-family: 'angelinaregular', cursive;
-}
+    <div id="result">
+      <span id="checkingText"></span>
+    </div>
+    <div id="image-result">
+      <img id="womanImage" src="#" alt="Wikipedia portrait" /> 
+    </div>
+    <div id="bestMatch"></div>
 
-body { 
-  font-family: 'madimi', sans-serif;
-  text-align: center;
-  margin: 15px;
-  background-image: url('assets/leather_1.png'); 
-  background-repeat: repeat; 
-  background-color: #f8f8f8; 
-  color: #581845; 
-  text-shadow: 1px 1px 1px rgba(0,0,0,0.1); 
-}
-
-button {
-  color: #581845; 
-}
-
-#cream-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(ellipse at var(--gradient-x) var(--gradient-y),
-                             rgba(255, 250, 240, 1) 15%,
-                             rgba(0, 0, 0, 0.6) 60%);
-  opacity: 0.5;
-  z-index: -1;
-}
-
-
-@media (max-width: 600px) {
-  #introPopup {
-    font-size: 0.9em;
-    padding: 20px;
-  }
-
-  .mode-description {
-    font-size: 0.8em;
-  }
-}
-
-
-#introPopup, #resultsPopup {
-  display: none;
-  position: fixed; 
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); 
-  background-color: #fffaf0; /* Soft cream color */
-  background-color: rgba(255, 250, 240, 1);    padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); 
-  z-index: 100;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-ol {
-  text-align: left;
-}
-
-.mode-description {
-  margin-bottom: 15px;
-  font-size: 0.9em;
-  color: #A9A9A9; /* Dark gray color */
-  text-shadow: none; 
-}
-
-.mode-description p {
-  margin-top: 5px;
-}
-
-#overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-  display: none; /* Initially hidden */
-  z-index: 99;
-}
-
-.title-image-container h1 { 
-  font-family: 'angelinaregular', cursive;
-  letter-spacing: 3px; 
-}
-
-h1 {
-  font-size: 2.5em;
-  margin-bottom: 20px;
-  color: #581845; 
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2); 
-}
-
-h2 {
-  font-weight: 380;
-}
-
-h4 {
-  font-size: 1.5em;
-  font-weight: 300;
-  margin-bottom: -15px;
-}
-
-#gameModeSelection {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-#timedModeButton, #challengeModeButton {
-  padding: 10px 20px;
-  margin: 0 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background-color: #fff; 
-  cursor: pointer;
-}
-
-input[type="text"], button {
-  padding: 10px 15px;
-  margin: 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  font-family: inherit;
-}
-
-#result { 
-  margin-top: 5px;
-  margin-bottom: 30px; 
-  font-size: 16px;
-  white-space: pre-wrap;
-}
-
-#result a {
-  color: #581845; 
-}
-
-#bestMatch { 
-  margin-top: 40px;
-  font-size: 16px;
-  white-space: pre-wrap;
-  height: 50px;
-  color: #666;
-}
-
-#bestMatch a {
-  color: #581845; 
-}
-
-.correct-result { 
-  color: #256137;  /* Dark forest green */
-}
-
-.incorrect-result {
-  color: #8b0000; /* Deep maroon */
-}
-
-#womenNamed, #invalidGuesses {
-  white-space: pre-wrap;
-  margin-bottom: 15px; 
-}
-
-#timer, #score {
-  font-weight: bold;
-  font-size: 1.4em;
-}
-
-#scoreDisplay, #timeDisplay  {
-  position: relative;    
-  top: -10px;
-}
-
-#attribution {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  font-size: 12px;
-  color: #666;
-  z-index: 200;
-}
-
-#quitButton {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  font-size: 12px;
-  padding: 5px 8px;
-}
-
-
-#attribution a {
-  color: #581845;
-  text-decoration: none;
-}
-
-#checkingText { 
-  font-size: 15px; 
-}
-
-#image-result {
-  display: flex; 
-  flex-direction: column; 
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-#womanImage {
-  max-width: 250px; 
-  max-height: 200px; 
-  margin-bottom: 15px; 
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3); 
-  border-radius: 80px;
-} 
+    <div id="resultsPopup" style="display: none;"> 
+        <h2><span class="custom-font">Thanks for playing!</span></h2>
+        <p>You named <span id="finalScore"></span> women!</p>
+        <p><b>Women named</b>: <span id="womenNamed"></span></p>
+        <p><b>Invalid guesses</b>: <span id="invalidGuesses"></span></p>
+        <button onclick="copyResults()">Copy Results</button>
+        <button id="playAgainButton">Play Again</button>
+    </div>
+    <button id="quitButton">Give Up</button>
+    <div id="attribution">
+      Inspired by <a href="https://twitter.com/qtcinderella/status/1772787434704814530">QTCinderella</a> and <a             href="https://www.youtube.com/watch?v=bzDlS6JPUtE">Billy Eichner</a>.
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
