@@ -1,28 +1,40 @@
 html, body {
-    min-height: 100%;
-    margin: 0;
+  min-height: 100%;
+  margin: 0;
 }
 
 @font-face {
-    font-family: 'angelinaregular';
-    src: url('assets/cursive-font-webfont.woff2') format('woff2'),
-         url('assets/cursive-font-webfont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'angelinaregular';
+  src: url('assets/cursive-font-webfont.woff2') format('woff2'),
+        url('assets/cursive-font-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'madimi';
+  src: url('assets/madimi.woff2') format('woff2'),
+  font-weight: normal;
+  font-style: normal;
 }
 
 .custom-font {
-    font-family: 'angelinaregular', cursive;
+  font-family: 'angelinaregular', cursive;
 }
 
 body { 
-    font-family: 'Garamond', serif;
-    text-align: center;
-    margin: 15px;
-    background-image: url('assets/leather_1.png'); 
-    background-repeat: repeat; 
-    background-color: #f8f8f8; 
-    color: #581845; 
+  font-family: 'madimi', sans-serif;
+  text-align: center;
+  margin: 15px;
+  background-image: url('assets/leather_1.png'); 
+  background-repeat: repeat; 
+  background-color: #f8f8f8; 
+  color: #581845; 
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.1); 
+}
+
+button {
+  color: #581845; 
 }
 
 #cream-overlay {
@@ -38,20 +50,6 @@ body {
   z-index: -1;
 }
 
-#introPopup {
-    display: none;
-    position: fixed; 
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); 
-    background-color: #fffaf0; /* Soft cream color */
-    background-color: rgba(255, 250, 240, 1);    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); 
-    z-index: 100;
-    max-height: 80vh;
-    overflow-y: auto;
-}
 
 @media (max-width: 600px) {
   #introPopup {
@@ -64,7 +62,8 @@ body {
   }
 }
 
-#resultsPopup {
+
+#introPopup, #resultsPopup {
   display: none;
   position: fixed; 
   top: 50%;
@@ -73,23 +72,25 @@ body {
   background-color: #fffaf0; /* Soft cream color */
   background-color: rgba(255, 250, 240, 1);    padding: 30px;
   border-radius: 15px;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); 
+  z-index: 100;
   max-height: 80vh;
-  overflow-y: auto; 
+  overflow-y: auto;
 }
 
 ol {
-  text-align: left; /* Left-align the list items */
+  text-align: left;
 }
 
 .mode-description {
-    margin-bottom: 15px; /* Maintain some spacing below */
-    font-size: 0.9em;  /* Slightly smaller font size */
-    color: #A9A9A9; /* Dark gray color */
+  margin-bottom: 15px;
+  font-size: 0.9em;
+  color: #A9A9A9; /* Dark gray color */
+  text-shadow: none; 
 }
 
-.mode-description p { /* Target paragraphs within the description */
-    margin-top: 5px;  /* Reduce top margin for closer spacing to buttons */
+.mode-description p {
+  margin-top: 5px;
 }
 
 #overlay {
@@ -100,11 +101,11 @@ ol {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
   display: none; /* Initially hidden */
-  z-index: 99; /* Slightly lower than the popup */
+  z-index: 99;
 }
 
 .title-image-container h1 { 
-  font-family: 'angelinaregular', cursive; /* Cursive as fallback  */
+  font-family: 'angelinaregular', cursive;
   letter-spacing: 3px; 
 }
 
@@ -112,7 +113,7 @@ h1 {
   font-size: 2.5em;
   margin-bottom: 20px;
   color: #581845; 
-  text-shadow: 2px 2px 3px rgba(0,0,0,0.2); 
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2); 
 }
 
 h2 {
@@ -127,16 +128,16 @@ h4 {
 
 #gameModeSelection {
     margin-bottom: 20px;
-    text-align: center; /* Center the buttons */
+    text-align: center;
 }
 
 #timedModeButton, #challengeModeButton {
-    padding: 10px 20px;
-    margin: 0 10px; /* Spacing between buttons */
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    background-color: #fff; 
-    cursor: pointer;
+  padding: 10px 20px;
+  margin: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #fff; 
+  cursor: pointer;
 }
 
 input[type="text"], button {
@@ -171,11 +172,11 @@ input[type="text"], button {
 }
 
 .correct-result { 
-    color: #256137;  /* Dark forest green */
+  color: #256137;  /* Dark forest green */
 }
 
 .incorrect-result {
-    color: #8b0000; /* Deep maroon */
+  color: #8b0000; /* Deep maroon */
 }
 
 #womenNamed, #invalidGuesses {
@@ -197,7 +198,7 @@ input[type="text"], button {
   position: fixed;
   bottom: 10px;
   right: 10px;
-  font-size: 15px;
+  font-size: 12px;
   color: #666;
   z-index: 200;
 }
