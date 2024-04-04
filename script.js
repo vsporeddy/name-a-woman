@@ -58,7 +58,7 @@ nameInput.addEventListener('keypress', function(event) {
 });
 
 nameInput.addEventListener(
-    'keydown', function() {                 // 'keydown' for any keypress
+    'keydown', function() {
       if (!timerInterval && isTimedMode) {  // Check if timer isn't running yet
         startTimer();
       } else if (!stopwatchInterval && !isTimedMode) {
