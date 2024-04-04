@@ -203,6 +203,15 @@ input[type="text"], button {
   z-index: 200;
 }
 
+#quitButton {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  font-size: 12px;
+  padding: 5px 8px;
+}
+
+
 #attribution a {
   color: #581845;
   text-decoration: none;
