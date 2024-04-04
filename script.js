@@ -1,5 +1,7 @@
 const nameInput = document.getElementById('nameInput');
 const submitButton = document.getElementById('submitButton');
+const quitButton = document.getElementById('quitButton');
+const playAgainButton = document.getElementById('playAgainButton');
 const resultDiv = document.getElementById('result');
 const imageDiv = document.getElementById('image-result');
 const bestMatchDiv = document.getElementById('bestMatch');
@@ -45,6 +47,8 @@ function initGradient() {
 submitButton.addEventListener('click', handleNameSubmission);
 timedModeButton.addEventListener('click', closeIntroPopup);
 challengeModeButton.addEventListener('click', closeIntroPopup);
+quitButton.addEventListener('click', endGame);
+playAgainButton.addEventListener('click', startGame);
 
 nameInput.addEventListener('keypress', function(event) {
   if (event.key === 'Enter' || event.keyCode === 13) {  // Check for 'Enter' key
@@ -82,7 +86,11 @@ function copyResults() {
 }
 
 async function handleNameSubmission() {
-  const name = nameInput.value;
+  const name = nameInput.value.trim();
+  if (name === '') {
+    return;
+  }
+
   nameInput.value = '';
   resultDiv.innerHTML = '<span id="checkingText">Searching...</span>';
   // Remove any existing image
@@ -351,6 +359,7 @@ function endGame() {
   }
   disableInputAndButton();  // Prevent further submissions
   showResultsPopup();
+  clearResults();
 }
 
 function handleRepeatSubmission(match, name) {
@@ -374,6 +383,11 @@ function displayBestMatch(match) {
   }
 }
 
+function clearResults() {
+  bestMatchDiv.innerHTML = ``;
+  resultDiv.innerHTML = ``;
+}
+
 function incrementScore() {
   currentScore++;
   score.textContent = currentScore;
@@ -390,9 +404,18 @@ function disableInputAndButton() {
   submitButton.disabled = true;
 }
 
+function enableInputAndButton() {
+  nameInput.disabled = false;
+  submitButton.disabled = false;
+}
+
 function closeIntroPopup() {
   document.getElementById('introPopup').style.display = 'none';
   document.getElementById('overlay').style.display = 'none';
+}
+
+function closeResultsPopup() {
+  document.getElementById('resultsPopup').style.display = 'none';
 }
 
 function displayIntroPopup() {
@@ -405,6 +428,12 @@ function displayIntroPopup() {
   if (imageElement) {
     imageElement.remove();
   }
+}
+
+function startGame() {
+  closeResultsPopup();
+  enableInputAndButton();
+  displayIntroPopup();
 }
 
 function updateGradient() {
@@ -422,4 +451,4 @@ function updateGradient() {
   overlay.style.setProperty('--gradient-spread', gradientSpread + 'px');
 }
 
-displayIntroPopup();
+startGame();
