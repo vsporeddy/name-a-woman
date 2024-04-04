@@ -72,7 +72,7 @@ button {
   background-color: #fffaf0; /* Soft cream color */
   background-color: rgba(255, 250, 240, 1);    padding: 30px;
   border-radius: 15px;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); 
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1), 0 0 60px rgba(88, 24, 69, 0.6); /* Pink glow */ 
   z-index: 100;
   max-height: 80vh;
   overflow-y: auto;
@@ -147,8 +147,7 @@ input[type="text"], button {
   border: 1px solid #ddd;
   font-family: inherit;
   box-shadow: 
-     5px 5px 10px rgba(0, 0, 0, 0.3),
-     0 0 20px rgba(88, 24, 69, 0.6); /* Pink glow */
+     0 0 10px rgba(88, 24, 69, 0.4); /* Pink glow */
     
 }
 
@@ -237,7 +236,7 @@ input[type="text"], button {
   max-height: 200px; 
   margin-bottom: 15px; 
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3); 
-  border-radius: 80px;
+  border-radius: 100px;
   box-shadow: 
      5px 5px 10px rgba(0, 0, 0, 0.3),
      0 0 60px rgba(88, 24, 69, 0.6); /* Pink glow */
