@@ -104,7 +104,6 @@ async function handleNameSubmission() {
 async function checkSubmission(name) {
   if (submissions[name]) {
     handleRepeatSubmission(submissions[name], name);
-    displayBestMatch(submissions[name]);
     return;
   }
 
@@ -372,6 +371,7 @@ function handleRepeatSubmission(match, name) {
   } else {
     resultDiv.innerHTML = `You already said ${name}!`
   }
+  bestMatchDiv.innerHTML = ``;
 }
 
 function displayBestMatch(match) {
