@@ -434,6 +434,8 @@ function startGame() {
   closeResultsPopup();
   enableInputAndButton();
   displayIntroPopup();
+  timerInterval = null;
+  stopwatchInterval = null;
 }
 
 function updateGradient() {
