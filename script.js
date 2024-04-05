@@ -34,7 +34,6 @@ const submittedNames = new Set();
 const correctNames = new Set();
 const incorrectNames = new Set();
 const submittedWikidataIds = new Set();
-
 const submissions = {};
 
 window.addEventListener('DOMContentLoaded', initGradient);  //  After page loads
@@ -359,6 +358,13 @@ function endGame() {
   disableInputAndButton();  // Prevent further submissions
   showResultsPopup();
   clearResults();
+  submittedNames.clear();
+  incorrectNames.clear();
+  correctNames.clear();
+  submittedWikidataIds.clear();
+  for (submission in submissions) {
+      delete submissions[submission];
+  }
 }
 
 function handleRepeatSubmission(match, name) {
