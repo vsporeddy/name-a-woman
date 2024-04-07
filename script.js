@@ -355,6 +355,7 @@ function endGame() {
   } else {
     clearInterval(stopwatchInterval);
   }
+  currentScore = 0;
   disableInputAndButton();  // Prevent further submissions
   showResultsPopup();
   clearResults();
